@@ -5,124 +5,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#7a55d6">
 <meta name="description" content="PixelPress, your pastel retro gaming RSS news reader.">
-<link rel="manifest" href="./manifest.webmanifest?v=12">
+<link rel="manifest" href="./manifest.webmanifest?v=14">
 <link rel="icon" href="./icons/app-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./icons/app-192.png">
 <title>PixelPress ★ Gaming News</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
-  <div class="sparkles" aria-hidden="true"><span class="a">✦</span><span class="b">✳</span><span class="c">✧</span><span class="d">✦</span></div>
   <div class="app-shell">
-    <header class="masthead">
-      <div class="brand-stack">
-        <div class="brand-icon" aria-hidden="true"><span data-pixel="controller"></span></div>
-        <div class="brand-meta">
-          <div class="microbrand">Your little internet arcade ★</div>
-          <h1 class="title">PIXEL<span class="accent">PRESS</span><span class="star">✦</span></h1>
-
-        </div>
-      </div>
-      <div class="mast-actions">
-
-
-        <button class="icon-button" id="jumpManageBtn" title="Go to Manage"><span data-pixel="gear"></span></button>
-      </div>
-    </header>
-
+    <button id="jumpManageBtn" hidden aria-hidden="true" tabindex="-1"></button>
     <main class="desktop">
       <div class="window-bar">
         <span class="dots"><i></i><i></i><i></i></span>
-        <span class="mini-label">C:\\GAMES\\PIXELPRESS.EXE</span>
-        <span class="mini-label">_ □ ×</span>
+        <span class="window-title">C:\GAMES\PIXELPRESS.EXE</span>
+        <span class="window-actions">– □ ×</span>
       </div>
 
       <div class="main-tabs-wrap">
-        <div class="main-tabs" id="mainTabs">
-          <button class="pixel-tab active" data-tab="new"><span class="ico" data-pixel="newspaper"></span>New <span class="counter-pill" id="newBadge">0</span></button>
-          <button class="pixel-tab" data-tab="readlater"><span class="ico" data-pixel="starFilled"></span>Read Later <span class="counter-pill" id="savedBadge">0</span></button>
-          <button class="pixel-tab" data-tab="all"><span class="ico" data-pixel="articles"></span>All</button>
-          <button class="pixel-tab" data-tab="manage"><span class="ico" data-pixel="gear"></span>Manage</button>
+        <div class="main-tabs" id="mainTabs" role="tablist" aria-label="Sections">
+          <button class="pixel-tab active" data-tab="new" role="tab" aria-selected="true"><span class="ico" data-pixel="newspaper"></span><span class="tab-label">New</span><span class="counter-pill" id="newBadge">0</span></button>
+          <button class="pixel-tab" data-tab="readlater" role="tab" aria-selected="false"><span class="ico" data-pixel="starFilled"></span><span class="tab-label">Read Later</span><span class="counter-pill" id="savedBadge">0</span></button>
+          <button class="pixel-tab" data-tab="all" role="tab" aria-selected="false"><span class="ico" data-pixel="articles"></span><span class="tab-label">All</span></button>
+          <button class="pixel-tab" data-tab="manage" role="tab" aria-selected="false"><span class="ico" data-pixel="gear"></span><span class="tab-label">Manage</span></button>
         </div>
       </div>
 
       <section class="content-window">
         <div class="view-panel active" id="view-new">
-          <div class="toolbar">
-            <div class="toolbar-left">
-
-              <div>
-                <div class="eyebrow">Fresh headlines</div>
-                <h3>What’s new</h3>
-
-              </div>
+          <div class="section-bar compact-bar">
+            <div class="section-title-wrap">
+              <div class="eyebrow">Latest feed</div>
+              <h2>What’s new</h2>
             </div>
-            <div class="toolbar-right">
+            <div class="toolbar-right compact-actions">
               <button class="small-btn" id="refreshBtn"><span class="btn-art">↻</span> Refresh</button>
               <button class="small-btn" id="layoutBtn"><span class="btn-art">▤</span> List</button>
             </div>
           </div>
-
-          <div class="control-strip">
-            <label class="search-wrap"><span class="mag">⌕</span><input id="searchInput" type="search" placeholder="Search the news universe..."><kbd>/</kbd></label>
-
+          <div class="control-strip compact-controls">
+            <label class="search-wrap compact-search"><span class="mag">⌕</span><input id="searchInput" type="search" placeholder="Search articles..."><kbd>/</kbd></label>
           </div>
-
-          <div class="meta-row"><span><span class="pulse"></span><span id="newResultText">Loading news…</span></span><span>✳ ───── ✳</span></div>
-          <div id="feedStatus" role="status" aria-live="polite"></div><div id="newGrid" class="article-grid"></div>
+          <div class="meta-row compact-meta"><span><span class="pulse"></span><span id="newResultText">Loading news…</span></span></div>
+          <div id="feedStatus" role="status" aria-live="polite"></div>
+          <div id="newGrid" class="article-grid list"></div>
         </div>
 
         <div class="view-panel" id="view-readlater">
-          <div class="toolbar">
-            <div class="toolbar-left"><div class="toolbar-icon" data-pixel="star"></div><div><div class="eyebrow">Bookmarks</div><h3>Read Later</h3><p>Saved stories you want to come back to.</p></div></div>
-          </div>
-          <div class="meta-row"><span><span class="pulse"></span><span id="savedResultText">Your saved articles</span></span><span>✦ ───── ✦</span></div>
-          <div id="savedGrid" class="article-grid"></div>
+          <div class="section-bar compact-bar"><div class="section-title-wrap"><div class="eyebrow">Saved stories</div><h2>Read Later</h2></div></div>
+          <div class="meta-row compact-meta"><span><span class="pulse"></span><span id="savedResultText">Your saved articles</span></span></div>
+          <div id="savedGrid" class="article-grid list"></div>
         </div>
 
         <div class="view-panel" id="view-all">
-          <div class="toolbar">
-            <div class="toolbar-left"><div class="toolbar-icon" data-pixel="articles"></div><div><div class="eyebrow">Everything</div><h3>All stories</h3><p>Browse all available stories, including those you’ve already read.</p></div></div>
-          </div>
-          <div class="meta-row"><span><span class="pulse"></span><span id="allResultText">All loaded articles</span></span><span>✧ ───── ✧</span></div>
-          <div id="allGrid" class="article-grid"></div>
+          <div class="section-bar compact-bar"><div class="section-title-wrap"><div class="eyebrow">Archive</div><h2>All stories</h2></div></div>
+          <div class="meta-row compact-meta"><span><span class="pulse"></span><span id="allResultText">All loaded articles</span></span></div>
+          <div id="allGrid" class="article-grid list"></div>
         </div>
 
         <div class="view-panel" id="view-manage">
-          <div class="toolbar">
-            <div class="toolbar-left"><div class="toolbar-icon" data-pixel="gear"></div><div><div class="eyebrow">Configure</div><h3>Manage feeds</h3><p>Add or remove RSS sites, or change your Worker endpoint.</p></div></div>
-          </div>
+          <div class="section-bar compact-bar"><div class="section-title-wrap"><div class="eyebrow">Configure</div><h2>Manage feeds</h2></div></div>
           <div class="manage-grid">
             <div class="manage-card">
               <h4>Worker settings</h4>
               <p>RSS is fetched through your Cloudflare Worker. Your subscriptions live on this device.</p>
-              <div class="notice">Your Worker is preconfigured below. If feeds cannot load, check its endpoint and CORS settings. You can update it here anytime.</div>
+              <div class="notice">If feeds cannot load, check the Worker endpoint and CORS settings.</div>
               <div class="stack">
                 <input class="worker-input" id="workerUrlInput" placeholder="https://your-worker.workers.dev">
                 <button class="primary-btn" id="saveWorkerBtn">Save Worker URL</button>
               </div>
-              <div style="height:14px"></div>
+              <div class="spacer-14"></div>
               <h4>Add a custom feed</h4>
-              <p>Add RSS sources you want to track on top of the built-in gaming feeds.</p>
               <div class="inline-row">
                 <input class="feed-input" id="feedUrlInput" placeholder="Enter RSS feed URL" style="flex:1; min-width:220px">
                 <button class="add-btn" id="addFeedBtn">Add Feed</button>
               </div>
-              <div id="manageMessage" role="status" style="margin-top:12px; font-weight:900; color:#6e6280"></div><div id="sourceHealth" class="source-health"></div>
+              <div id="manageMessage" role="status" class="manage-message"></div>
+              <div id="sourceHealth" class="source-health"></div>
               <div class="subs" id="subscriptionList"></div>
             </div>
             <div class="manage-card">
               <h4>Popular gaming feeds</h4>
-              <p>Quick-add some handy presets.</p>
+              <p>Quick-add presets.</p>
               <div class="subs" id="popularList"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <div class="footer-row"><span>✿ Made for curious gamers</span><span>PixelPress v11 · Live RSS · <span id="footerDate"></span></span><span>Insert coin to continue ✦</span></div>
+      <div class="footer-row"><span>PixelPress v14</span><span>Live RSS · <span id="footerDate"></span></span></div>
     </main>
-    <p class="footer-note">Your subscriptions, read status and bookmarks stay on this device. Live news is fetched through your Cloudflare Worker.</p>
   </div>
 
   <div class="article-modal" id="articleModal" aria-hidden="true">
@@ -132,6 +103,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=12" defer></script>
+  <script src="app.js?v=14" defer></script>
 </body>
 </html>

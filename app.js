@@ -35,7 +35,7 @@ if(!Array.isArray(articles))articles=[];
 let savedStories=load('savedStories',[]);
 if(!Array.isArray(savedStories))savedStories=[];
 let readIds=new Set(load('readIds',[]));
-let tab='new', search='',listMode=load('listMode',false),busy=false,sourceErrors=[],lastSync=load('lastSync',''),freezeNewList=false;
+let tab='new', search='',listMode=load('listMode',true),busy=false,sourceErrors=[],lastSync=load('lastSync',''),freezeNewList=false;
 const idFor = article => article.url;
 const setMessage = msg => { $('manageMessage').textContent=msg; };
 const invalidate = () => {save('feeds',feeds); save('readIds',[...readIds].slice(-2500)); save('savedStories',savedStories);};
@@ -198,15 +198,18 @@ function renderCard(article){
  const bg=feeds.find(f=>f.id===article.source)?.color||'#ead8ff';
  const img=article.image?`<img class="article-thumbnail" loading="lazy" decoding="async" src="${escapeHtml(article.image)}" alt="" data-origin-image="${escapeHtml(article.image)}" onerror="window.pixelpressImageFallback(this)">`:'';
  return `<article class="article-card ${read?'read':''}" data-url="${escapeHtml(article.url)}">
-    <div class="thumb" style="background:linear-gradient(135deg,${bg},#fff0f6)">
-      ${img}<div class="image-placeholder" style="${article.image?'display:none':''}" aria-label="No thumbnail"><svg viewBox="0 0 64 48" width="46" height="38" fill="none" aria-hidden="true"><rect x="3" y="3" width="58" height="42" rx="2" stroke="currentColor" stroke-width="3"/><circle cx="19" cy="16" r="5" fill="currentColor" opacity=".45"/><path d="M6 39L24 23L34 31L43 20L58 38" stroke="currentColor" stroke-width="3"/></svg><span>NO IMAGE</span></div>
-      <span class="source-tag">${icon('controller',14)} ${escapeHtml(article.sourceName)}</span>
+    <div class="thumb" style="background:linear-gradient(135deg,${bg},#fff2f7)">
+      ${img}
+      <div class="image-placeholder" style="${article.image?'display:none':''}" aria-label="No thumbnail"><svg viewBox="0 0 64 48" width="48" height="40" fill="none" aria-hidden="true"><rect x="3" y="3" width="58" height="42" rx="2" stroke="currentColor" stroke-width="3"/><circle cx="19" cy="16" r="5" fill="currentColor" opacity=".45"/><path d="M6 39L24 23L34 31L43 20L58 38" stroke="currentColor" stroke-width="3"/></svg><span>NO IMAGE</span></div>
+      <span class="source-tag">${icon('newspaper',12)} ${escapeHtml(article.sourceName)}</span>
+      <button class="bookmark-float ${saved?'saved':''}" aria-pressed="${saved}" aria-label="${saved?'Remove from Read Later':'Save for later'}" title="${saved?'Remove from Read Later':'Save for later'}" data-save="${escapeHtml(article.url)}">${icon(saved?'starFilled':'starOutline',24)}</button>
     </div>
     <div class="article-body">
       <div class="top-meta"><span class="tag-chip">${escapeHtml(article.category||'News')}</span><span class="time">${escapeHtml(ago(article.date))}</span></div>
-      <h4 class="article-title">${escapeHtml(article.title)}</h4><p class="article-snippet">${escapeHtml(article.snippet||'')}</p>
-      <div class="article-actions"><div class="action-left"><button class="bookmark-btn ${saved?'saved':''}" aria-pressed="${saved}" aria-label="${saved?'Remove from Read Later':'Save for later'}" title="${saved?'Remove from Read Later':'Save for later'}" data-save="${escapeHtml(article.url)}">${icon(saved?'starFilled':'starOutline',25)}</button><span class="read-state">${read?'READ':'UNREAD'}</span></div><button class="open-btn" data-open="${escapeHtml(article.url)}">READ STORY <span aria-hidden="true">▸</span></button></div>
-    </div></article>`;
+      <h4 class="article-title">${escapeHtml(article.title)}</h4>
+      <p class="article-snippet">${escapeHtml(article.snippet||'')}</p>
+    </div>
+  </article>`;
 }
 function emptyMarkup(title,subtitle){return `<div class="empty-state"><span class="ico">✧</span><h4>${escapeHtml(title)}</h4><p>${escapeHtml(subtitle)}</p></div>`;}
 function render(){
@@ -297,8 +300,8 @@ document.querySelectorAll('.pixel-tab').forEach(n=>n.onclick=()=>showTab(n.datas
 $('jumpManageBtn').onclick=()=>showTab('manage');
 $('searchInput').addEventListener('input',e=>{search=e.target.value.trim();render();});
 $('refreshBtn').onclick=refreshFeeds;
-$('layoutBtn').onclick=()=>{listMode=!listMode;save('listMode',listMode);$('layoutBtn').textContent=listMode?'▦ Grid':'▤ List';render();};
-$('layoutBtn').textContent=listMode?'▦ Grid':'▤ List';
+$('layoutBtn').onclick=()=>{listMode=!listMode;save('listMode',listMode);$('layoutBtn').innerHTML=listMode?'<span class="btn-art">▦</span> Grid':'<span class="btn-art">▤</span> List';render();};
+$('layoutBtn').innerHTML=listMode?'<span class="btn-art">▦</span> Grid':'<span class="btn-art">▤</span> List';
 $('closeModalBtn').onclick=closeModal;
 $('articleModal').onclick=e=>{if(e.target===$('articleModal'))closeModal();};
 $('saveWorkerBtn').onclick=saveWorker;
