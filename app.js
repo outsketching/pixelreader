@@ -305,5 +305,5 @@ $('saveWorkerBtn').onclick=saveWorker;
 $('addFeedBtn').onclick=()=>addFeed($('feedUrlInput').value);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='/'&&!/INPUT|TEXTAREA/.test(document.activeElement?.tagName)){e.preventDefault();$('searchInput').focus();}});
 renderManage();showTab('new');showStatus(articles.length?'Showing cached headlines while feeds refresh…':'Connecting to your news feeds…','');refreshFeeds();
-if('serviceWorker'in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(console.warn);
+if('serviceWorker'in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js?v=12', {updateViaCache:'none'}).catch(console.warn);
 })();

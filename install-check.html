@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PixelPress install check</title><style>body{font:16px system-ui;max-width:700px;margin:30px auto;padding:0 18px;background:#f7e9cc;color:#2a2140}h1{font-size:25px}li{margin:8px 0;padding:9px;background:white;border:1px solid #777;border-radius:8px;overflow-wrap:anywhere}.ok{border-left:5px solid #27946a}.bad{border-left:5px solid #c44152}code{font-size:13px}button,a{font:inherit}</style></head><body><h1>★ PixelPress installation check</h1><p>Open this page using your <b>GitHub Pages HTTPS URL</b>, not from a downloaded HTML file. It checks files as actually served by your website.</p><ul id="results"></ul><p><a href="./">Back to PixelPress</a></p><script>
+const list=document.querySelector('#results');function note(ok,label,details){let li=document.createElement('li');li.className=ok?'ok':'bad';li.textContent=(ok?'✓ ':'✗ ')+label+(details?' — '+details:'');list.append(li)};
+(async()=>{
+ note(location.protocol==='https:', 'HTTPS',location.protocol);
+ note(location.hostname!=='','Deployed website',location.href);
+ let manifest;
+ try{const link=document.querySelector('link[rel="manifest"]')||document.createElement('link');const url=new URL('./manifest.webmanifest?v=12',location.href);const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);manifest=await res.json();note(true,'Manifest served',url.href)}catch(e){note(false,'Manifest could not load',e.message);return}
+ for(let key of ['name','short_name','start_url','scope','display'])note(!!manifest[key],'Manifest '+key,JSON.stringify(manifest[key]));
+ const start=new URL(manifest.start_url, new URL('./manifest.webmanifest',location.href));const scope=new URL(manifest.scope,new URL('./manifest.webmanifest',location.href));
+ note(start.origin===location.origin&&start.pathname.startsWith(scope.pathname),'Start URL / scope',start.href);
+ try{const res=await fetch(start,{cache:'no-store'});note(res.ok,'Start page accessible','HTTP '+res.status)}catch(e){note(false,'Start page accessible',e.message)}
+ for(let size of [192,512]){
+ const entry=(manifest.icons||[]).find(icon=>(icon.sizes||'').split(/\s+/).includes(size+'x'+size));
+ if(!entry){note(false,size+'px icon listed');continue}
+ let url=new URL(entry.src,new URL('./manifest.webmanifest',location.href));
+ try{const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const blob=await res.blob();let im=await createImageBitmap(blob);note(im.width===size&&im.height===size,size+'px icon loads',url.pathname+' '+im.width+'×'+im.height);im.close()}catch(e){note(false,size+'px icon loads',e.message+' '+url.href)}
+ }
+ note('serviceWorker'in navigator,'Service worker available');
+ try{const res=await fetch('./sw.js?v=12',{cache:'no-store'});note(res.ok,'Service worker script accessible','HTTP '+res.status)}catch(e){note(false,'Service worker script accessible',e.message)}
+})();
+</script></body></html>
