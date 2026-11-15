@@ -1,5 +1,5 @@
 /* PixelPress offline shell. Missing optional files must not block SW install. */
-const VERSION = 'pixelpress-shell-v12';
+const VERSION = 'pixelpress-shell-v15';
 const CORE = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './icons/app-192.png', './icons/app-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

@@ -95,7 +95,7 @@ function rssXmlToItems(raw,feed){
   const excerpt=safeText(html).slice(0,600);
   const date=readableDate(xmlText(el,['pubDate','published','updated','date']));
   const image=imageFromNode(el,link||feed.url);
-  return {url:link,title,source:feed.id,sourceName:feed.name,date,snippet:excerpt,content:excerpt,image,category:plain(xmlText(el,['category'])).slice(0,48)||'News'};
+  return {url:link,title,source:feed.id,sourceName:feed.name,date,snippet:excerpt,content:safeText(html).slice(0,35000),image,category:plain(xmlText(el,['category'])).slice(0,48)||'News'};
  }).filter(a=>a.title&&a.url);
 }
 function jsonToItems(result,feed){
@@ -263,18 +263,88 @@ function observeScroll(){
  document.querySelectorAll('#newGrid .article-card').forEach(node=>observer.observe(node));
 }
 function showTab(name){if(name!==tab){freezeNewList=false;newSessionIds.clear();seenOnScreen.clear();}tab=name;document.querySelectorAll('.pixel-tab').forEach(n=>{const on=n.dataset.tab===name;n.classList.toggle('active',on);n.setAttribute('aria-selected',on?'true':'false');});document.querySelectorAll('.view-panel').forEach(n=>n.classList.toggle('active',n.id==='view-'+name));render();if(name==='manage')renderManage();}
+const articleCache=new Map();
+let currentArticleRequest=0;
+function readerBlocks(blocks){
+ return blocks.slice(0,160).map(block=>{
+   const value=escapeHtml(block.text||'');
+   if(!value)return '';
+   if(block.type==='h2')return `<h3 class="reader-heading">${value}</h3>`;
+   if(block.type==='h3')return `<h4 class="reader-subheading">${value}</h4>`;
+   if(block.type==='quote')return `<blockquote class="reader-quote">${value}</blockquote>`;
+   if(block.type==='li')return `<p class="reader-list-item">• ${value}</p>`;
+   return `<p>${value}</p>`;
+ }).join('');
+}
+function updateReadBadge(){
+ const count=allKnown().filter(a=>a?.url && feeds.some(f=>f.id===a.source) && Date.now()-Date.parse(a.date)<=READ_WINDOW&&!readIds.has(a.url)).length;
+ $('newBadge').textContent=count;
+ $('newResultText').textContent=count+' unread stories · all subscribed sources';
+}
+function markReadInPlace(url){
+ if(readIds.has(url))return;
+ readIds.add(url);newSessionIds.add(url);freezeNewList=true;
+ save('readIds',[...readIds].slice(-2500));
+ document.querySelectorAll('.article-card').forEach(card=>{if(card.dataset.url===url)card.classList.add('read');});
+ updateReadBadge();
+}
+async function loadFullArticle(article,requestId){
+ const status=$('readerStatus'),content=$('readerContent');
+ const rssText=(article.content||article.snippet||'').trim();
+ if(articleCache.has(article.url)){
+   const cached=articleCache.get(article.url);
+   if(cached?.blocks?.length){status.textContent=`Fuller text extracted from ${article.sourceName}.`;content.innerHTML=readerBlocks(cached.blocks);return;}
+ }
+ // Show all available RSS content while the full-article request runs.
+ if(rssText.length)content.innerHTML=readerBlocks(rssText.split(/\n\s*\n/).filter(Boolean).map(text=>({type:'p',text})));
+ else content.innerHTML='<p>No article text was included in this feed.</p>';
+ status.textContent='Loading more of the article…';
+ const requestUrl=new URL(worker.replace(/\/+$/,'')+'/');
+ requestUrl.searchParams.set('article',article.url);
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),18000);
+ try{
+   const res=await fetch(requestUrl.href,{signal:controller.signal,headers:{Accept:'application/json'},credentials:'omit'});
+   if(!res.ok){const message=(await res.text()).slice(0,180);throw Error(`Worker HTTP ${res.status}${message?': '+message:''}`);}
+   const data=await res.json();
+   if(requestId!==currentArticleRequest)return;
+   const blocks=Array.isArray(data.blocks)?data.blocks.filter(b=>b&&typeof b.text==='string'&&b.text.trim()):[];
+   const chars=blocks.reduce((n,b)=>n+b.text.length,0);
+   if(chars>Math.max(350,rssText.length*0.9)){
+     content.innerHTML=readerBlocks(blocks);
+     articleCache.set(article.url,{blocks});
+     if(articleCache.size>15)articleCache.delete(articleCache.keys().next().value);
+     status.textContent='Expanded article text · '+Math.max(1,Math.round(chars/1000))+'k characters loaded';
+   } else if(rssText.length){
+     status.textContent='Showing all text provided by the RSS feed. No longer article text was available.';
+   } else if(chars>80){
+     content.innerHTML=readerBlocks(blocks);
+     status.textContent='Article text extracted from the publisher.';
+   } else throw Error('No readable article body found');
+ }catch(e){
+   if(requestId!==currentArticleRequest)return;
+   status.textContent=(rssText.length?'Showing RSS content only. ':'Unable to extract this article. ')+
+     'Some sites restrict automatic extraction. Use “Open on website” for the full story.';
+   console.info('Reader extraction:',String(e?.message||e));
+ }finally{clearTimeout(timer);}
+}
 function openArticle(url){
  const article=allKnown().find(a=>a.url===url);if(!article)return;
- if(!readIds.has(url)){readIds.add(url);save('readIds',[...readIds]);render();}
+ markReadInPlace(url);
  const img=article.image?`<img class="modal-image" src="${escapeHtml(article.image)}" alt="" data-origin-image="${escapeHtml(article.image)}" onerror="window.pixelpressModalImageFallback(this)">`:'';
- const body=article.content||article.snippet||'';
- $('modalBody').innerHTML=`<h2 id="modalTitle">${escapeHtml(article.title)}</h2><p class="modal-meta">${escapeHtml(article.sourceName)} · ${escapeHtml(ago(article.date))}</p>${img}
- <div class="reader-note">${body.length>article.snippet.length+100?'Article content supplied by RSS':'Article preview from RSS. The publisher may not supply the full text.'}</div>
- <div class="modal-content"><p class="article-content">${escapeHtml(body||'No article summary available.')}</p></div>
- <a class="out-link" href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">Open full article ↗</a>`;
- $('articleModal').classList.add('show');$('articleModal').setAttribute('aria-hidden','false');$('closeModalBtn').focus();
+ $('modalBody').innerHTML=`<h2 id="modalTitle">${escapeHtml(article.title)}</h2>
+ <p class="modal-meta">${escapeHtml(article.sourceName)} · ${escapeHtml(ago(article.date))}</p>
+ ${img}
+ <div class="reader-note" id="readerStatus" role="status">Loading more of the article…</div>
+ <div class="modal-content reader-full" id="readerContent"><p>Loading article…</p></div>
+ <a class="out-link" href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">Open on website ↗</a>`;
+ $('articleModal').classList.add('show');$('articleModal').setAttribute('aria-hidden','false');
+ $('closeModalBtn').focus();
+ const requestId=++currentArticleRequest;
+ loadFullArticle(article,requestId);
 }
-function closeModal(){$('articleModal').classList.remove('show');$('articleModal').setAttribute('aria-hidden','true');}
+
+function closeModal(){currentArticleRequest++;$('articleModal').classList.remove('show');$('articleModal').setAttribute('aria-hidden','true');}
 function makeId(url){let hash=0;for(const ch of url)hash=(hash*31+ch.charCodeAt(0))|0;return 'custom-'+(hash>>>0).toString(36);}
 function addFeed(url){
  url=cleanUrl(url.trim());if(!url){setMessage('Please enter a valid http or https RSS URL.');return;}
@@ -308,5 +378,5 @@ $('saveWorkerBtn').onclick=saveWorker;
 $('addFeedBtn').onclick=()=>addFeed($('feedUrlInput').value);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='/'&&!/INPUT|TEXTAREA/.test(document.activeElement?.tagName)){e.preventDefault();$('searchInput').focus();}});
 renderManage();showTab('new');showStatus(articles.length?'Showing cached headlines while feeds refresh…':'Connecting to your news feeds…','');refreshFeeds();
-if('serviceWorker'in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js?v=12', {updateViaCache:'none'}).catch(console.warn);
+if('serviceWorker'in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js?v=15', {updateViaCache:'none'}).catch(console.warn);
 })();

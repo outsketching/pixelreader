@@ -132,3 +132,13 @@ button{cursor:pointer}
   .article-snippet{font-size:15px; -webkit-line-clamp:5}
   .sub-url{max-width:150px}
 }
+
+/* Full-article reader v15 */
+.reader-full{padding:4px 0 12px;max-width:74ch;margin:auto}
+.reader-full p{font-size:17px;line-height:1.75;color:#403653;margin:0 0 1.1em}
+.reader-full .reader-heading{font-size:23px;line-height:1.25;margin:1.25em 0 .55em}
+.reader-full .reader-subheading{font-size:19px;line-height:1.3;margin:1.1em 0 .5em}
+.reader-full .reader-quote{border-left:4px solid #9f7ce1;padding:12px 15px;background:#f3eaff;border-radius:0 10px 10px 0;margin:20px 0;line-height:1.6}
+.reader-full .reader-list-item{padding-left:1em}
+.reader-note{font-size:13px}
+@media(max-width:640px){.reader-full p{font-size:16px;line-height:1.66}.reader-full .reader-heading{font-size:20px}}
