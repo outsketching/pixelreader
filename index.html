@@ -33,33 +33,30 @@
       <section class="content-window">
         <div class="view-panel active" id="view-new">
           <div class="section-bar compact-bar">
-            <div class="section-title-wrap">
-              <div class="eyebrow">Latest feed</div>
-              <h2>What’s new</h2>
-            </div>
+
             <div class="toolbar-right compact-actions">
               <button class="small-btn" id="refreshBtn"><span class="btn-art">↻</span> Refresh</button>
-              <button class="small-btn" id="layoutBtn"><span class="btn-art">▤</span> List</button>
             </div>
-          </div>
-          <div class="control-strip compact-controls">
-            <label class="search-wrap compact-search"><span class="mag">⌕</span><input id="searchInput" type="search" placeholder="Search articles..."><kbd>/</kbd></label>
           </div>
           <div class="meta-row compact-meta"><span><span class="pulse"></span><span id="newResultText">Loading news…</span></span></div>
           <div id="feedStatus" role="status" aria-live="polite"></div>
           <div id="newGrid" class="article-grid list"></div>
+          <div class="feed-end-actions"><button class="small-btn refresh-bottom" id="refreshBottomBtn"><span class="btn-art">↻</span> Refresh news</button></div>
+          <div class="scroll-tail" aria-hidden="true"></div>
         </div>
 
         <div class="view-panel" id="view-readlater">
           <div class="section-bar compact-bar"><div class="section-title-wrap"><div class="eyebrow">Saved stories</div><h2>Read Later</h2></div></div>
           <div class="meta-row compact-meta"><span><span class="pulse"></span><span id="savedResultText">Your saved articles</span></span></div>
           <div id="savedGrid" class="article-grid list"></div>
+          <div class="feed-end-actions"><button class="small-btn refresh-bottom" id="refreshSavedBtn"><span class="btn-art">↻</span> Refresh news</button></div>
         </div>
 
         <div class="view-panel" id="view-all">
           <div class="section-bar compact-bar"><div class="section-title-wrap"><div class="eyebrow">Archive</div><h2>All stories</h2></div></div>
           <div class="meta-row compact-meta"><span><span class="pulse"></span><span id="allResultText">All loaded articles</span></span></div>
           <div id="allGrid" class="article-grid list"></div>
+          <div class="feed-end-actions"><button class="small-btn refresh-bottom" id="refreshAllBtn"><span class="btn-art">↻</span> Refresh news</button></div>
         </div>
 
         <div class="view-panel" id="view-manage">

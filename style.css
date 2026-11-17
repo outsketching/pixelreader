@@ -142,3 +142,39 @@ button{cursor:pointer}
 .reader-full .reader-list-item{padding-left:1em}
 .reader-note{font-size:13px}
 @media(max-width:640px){.reader-full p{font-size:16px;line-height:1.66}.reader-full .reader-heading{font-size:20px}}
+
+/* v17 — mobile-first reader controls, the top refresh remains visible. */
+.desktop{overflow:clip}
+.main-tabs-wrap{
+  position:sticky;
+  top:0;
+  z-index:30;
+  padding:6px 7px 4px;
+  background:#f7f1ff;
+  border-bottom:3px solid var(--line);
+  box-shadow:0 3px 0 rgba(47,35,72,.08);
+}
+.main-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible;padding:0}
+.pixel-tab{min-width:0;min-height:43px;padding:5px 3px;gap:4px;justify-content:center;box-shadow:none;border-width:2px;border-radius:9px 9px 6px 6px;line-height:1.15}
+.pixel-tab .ico{width:19px;height:19px;flex:0 0 19px}
+.pixel-tab .ico img{max-width:100%;max-height:100%}
+.pixel-tab .tab-label{font-size:clamp(10px,2.65vw,13px);line-height:1;letter-spacing:-.3px}
+.counter-pill{min-width:17px;height:18px;padding:0 2px;border-width:1px;border-radius:6px;font-size:10px}
+.compact-bar{justify-content:flex-end;padding:1px 2px 8px}
+.compact-meta{margin:0 2px 8px}
+.feed-end-actions{display:flex;justify-content:center;padding:22px 0 10px}
+.refresh-bottom{min-height:44px;padding:10px 20px;background:#d8c8fa}
+.scroll-tail{height:calc(100dvh + 96px);min-height:660px;pointer-events:none}
+.article-modal{padding:0;align-items:stretch;justify-content:stretch;overflow:hidden}
+.modal-window{width:100%;height:100%;max-height:100dvh;max-width:none;overflow:auto;overscroll-behavior:contain;border:0;border-radius:0;box-shadow:none;padding-bottom:env(safe-area-inset-bottom)}
+.modal-head{padding-top:calc(11px + env(safe-area-inset-top));}
+.reader-open{overflow:hidden}
+@media(max-width:640px){
+ .main-tabs-wrap{padding:5px 4px 3px;top:0}
+ .main-tabs{gap:3px}
+ .pixel-tab{gap:2px;padding:6px 2px;min-height:41px;border-width:2px}
+ .pixel-tab .ico{width:16px;height:18px;flex-basis:16px}
+ .pixel-tab .tab-label{font-size:clamp(9.5px,2.7vw,12px)}
+ .counter-pill{font-size:9px;min-width:16px;height:17px}
+ .modal-body{padding:16px}
+}
